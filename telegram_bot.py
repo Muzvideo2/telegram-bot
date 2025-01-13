@@ -7,8 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1cjriK8922lHUt4xz0rqMOgQp0lTtjzGu
 """
 
-
-
+import os
 import requests
 from flask import Flask, request
 from datetime import datetime, timedelta
@@ -102,6 +101,14 @@ def send_telegram_notification(question, user_vk_link):
 # Запуск Flask-приложения
 if __name__ == "__main__":
     # Укажите вебхук
-    webhook_url = f"https://<YOUR-SERVER-URL>/{telegram_token}"  # Замените на URL вашего сервера
-    requests.get(f"{base_url}/setWebhook?url={webhook_url}")
-    app.run(host="0.0.0.0", port=5000)
+    render_url = os.getenv("RENDER_EXTERNAL_URL")  # URL вашего Render
+    if render_url:
+        webhook_url = f"{render_url}/{telegram_token}"
+        requests.get(f"{base_url}/setWebhook?url={webhook_url}")
+        print(f"Webhook установлен: {webhook_url}")
+    else:
+        print("Ошибка: URL сервиса не найден.")
+
+    # Запуск Flask
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
