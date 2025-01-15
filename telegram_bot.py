@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, request
+from flask import Flask, request, jsonify  # Исправлено: добавлен импорт jsonify
 from datetime import datetime, timedelta
 
 # Telegram API Token
@@ -16,7 +16,7 @@ allowed_users = set()
 # Словарь для отслеживания состояний пользователей
 user_states = {}
 
-# >>> Добавляем набор для "паузы" по имени_фамилии
+# >>> Набор для "паузы" по имени_фамилии
 paused_names = set()
 
 # Flask-приложение
@@ -84,15 +84,18 @@ def telegram_webhook():
 
 @app.route("/is_paused/<name>", methods=["GET"])
 def check_pause(name):
+    """
+    Проверяет, находится ли пользователь на паузе.
+    """
     if name in paused_names:
-        return jsonify({"paused": True})
+        return jsonify({"paused": True})  # Исправлено: добавлен импорт jsonify
     return jsonify({"paused": False})
 
 def send_telegram_notification(question, user_vk_link):
     """
     Отправляет уведомление в Telegram о старте диалога.
     """
-    # Определяем текущую дату и время в Омске (+3 часа к Москве)
+    # Определяем текущую дату и время в Омске (+6 часов к UTC)
     current_time = datetime.utcnow() + timedelta(hours=6)
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
