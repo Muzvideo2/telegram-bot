@@ -25,6 +25,9 @@ allowed_users = set()
 # Словарь для отслеживания состояний пользователей
 user_states = {}
 
+# >>> Добавляем набор для "паузы" по имени_фамилии
+paused_names = set()
+
 # Flask-приложение
 app = Flask(__name__)
 
@@ -67,6 +70,29 @@ def telegram_webhook():
 
         # Если пользователь авторизован
         if chat_id in allowed_users:
+
+            # >>> Добавляем команды /pause и /play
+            if text.startswith("/pause "):
+                # Ожидаем формат /pause Имя_Фамилия
+                name_to_pause = text.replace("/pause ", "").strip()
+                if name_to_pause:
+                    paused_names.add(name_to_pause)
+                    send_message(chat_id, f"Поставил на паузу: {name_to_pause}")
+                else:
+                    send_message(chat_id, "Формат команды: /pause Имя_Фамилия")
+                return "OK"
+
+            elif text.startswith("/play "):
+                # Ожидаем формат /play Имя_Фамилия
+                name_to_play = text.replace("/play ", "").strip()
+                if name_to_play in paused_names:
+                    paused_names.remove(name_to_play)
+                    send_message(chat_id, f"Возобновил для: {name_to_play}")
+                else:
+                    send_message(chat_id, f"Пользователь '{name_to_play}' не был на паузе.")
+                return "OK"
+
+            # >>> В остальном поведение бота не меняется
             send_message(chat_id, f"Вы отправили: {text}")
         else:
             send_message(chat_id, "У вас нет доступа. Используйте /start для ввода пароля.")
