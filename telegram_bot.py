@@ -63,7 +63,7 @@ def telegram_webhook():
                 name_to_clear = text.replace("/clear ", "").strip()
                 if name_to_clear:
                     response = requests.post(
-                       f"https://muzvideo2-bot.onrender.com/clear_context/{quote(name_to_clear)}" # Замените на свой URL
+                       f"https://telegram-bot-k2hl.onrender.com/clear_context/{quote(name_to_clear)}" # Замените на свой URL основного бота
                     )
                     if response.status_code == 200:
                         send_message(chat_id, f"Контекст для пользователя {name_to_clear} успешно удалён.")
@@ -77,6 +77,8 @@ def telegram_webhook():
                 if name_to_pause:
                     paused_names.add(name_to_pause)
                     send_message(chat_id, f"Поставил на паузу: {name_to_pause}")
+                    # Отладочное сообщение со списком на паузе
+                    send_message(chat_id, f"Список пользователей на паузе: {', '.join(paused_names)}")
                     print(f"Добавлен в паузу: {name_to_pause}")
                 else:
                     send_message(chat_id, "Формат команды: /pause Имя_Фамилия")
@@ -88,11 +90,14 @@ def telegram_webhook():
                     if name_to_play in paused_names:
                         paused_names.remove(name_to_play)
                         send_message(chat_id, f"Возобновил для: {name_to_play}")
+                        # Отладочное сообщение со списком на паузе
+                        send_message(chat_id, f"Список пользователей на паузе: {', '.join(paused_names)}")
                         print(f"Удален из паузы: {name_to_play}")
                     else:
                         send_message(chat_id, f"Пользователь '{name_to_play}' не был на паузе.")
                 else:
                     send_message(chat_id, "Формат команды: /play Имя_Фамилия")
+
                 return "OK"
 
             send_message(chat_id, f"Вы отправили: {text}")
