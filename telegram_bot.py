@@ -76,6 +76,7 @@ def telegram_webhook():
                 if name_to_pause:
                     paused_names.add(name_to_pause)
                     send_message(chat_id, f"Поставил на паузу: {name_to_pause}")
+                    print(f"Добавлен в паузу: {name_to_pause}")
                 else:
                     send_message(chat_id, "Формат команды: /pause Имя_Фамилия")
                 return "OK"
