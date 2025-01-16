@@ -2,7 +2,7 @@ import os
 import requests
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 # Telegram API Token
 telegram_token = "8101646300:AAE3hEx3q8953PHlfKiofvo4aH8zBBEUdrQ"  # Замените на свой токен
@@ -114,10 +114,12 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route("/is_paused/<name>", methods=["GET"])
 def check_pause(name):
     logging.debug(f"Проверка паузы для пользователя через логгер: {name}")
-    if name in paused_names:
-        logging.debug(f"Пользователь {name} найден в списке пауз.")
+    decoded_name = unquote(name).lower()  # Декодируем и приводим к нижнему регистру
+    
+    if decoded_name in [n.lower() for n in paused_names]: # Сравниваем в нижнем регистре
+        logging.debug(f"Пользователь {decoded_name} найден в списке пауз.")
         return jsonify({"paused": True})
-    logging.debug(f"Пользователь {name} не на паузе.")
+    logging.debug(f"Пользователь {decoded_name} не на паузе.")
     return jsonify({"paused": False})
 
 def send_telegram_notification(question, user_vk_link):
