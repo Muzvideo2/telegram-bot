@@ -103,12 +103,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route("/is_paused/<name>", methods=["GET"])
 def check_pause(name):
-    """
-    Проверяет, находится ли пользователь на паузе.
-    """
     logging.debug(f"Проверка паузы для пользователя через логгер: {name}")
     if name in paused_names:
+        logging.debug(f"Пользователь {name} найден в списке пауз.")
         return jsonify({"paused": True})
+    logging.debug(f"Пользователь {name} не на паузе.")
     return jsonify({"paused": False})
 
 def send_telegram_notification(question, user_vk_link):
@@ -135,6 +134,8 @@ def send_telegram_notification(question, user_vk_link):
             "parse_mode": "Markdown"
         }
         requests.post(url, data=data)
+
+logging.debug("Проверка: уровень логирования DEBUG работает")
 
 # Запуск Flask-приложения
 if __name__ == "__main__":
