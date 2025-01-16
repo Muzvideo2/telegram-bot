@@ -1,16 +1,15 @@
 import os
 import requests
-from flask import Flask, request, jsonify  # Исправлено: добавлен импорт jsonify
+from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
-import logging
 from urllib.parse import quote
 
 # Telegram API Token
-telegram_token = "8101646300:AAE3hEx3q8953PHlfKiofvo4aH8zBBEUdrQ"
+telegram_token = "8101646300:AAE3hEx3q8953PHlfKiofvo4aH8zBBEUdrQ"  # Замените на свой токен
 base_url = f"https://api.telegram.org/bot{telegram_token}"
 
 # Секретный пароль
-bot_password = "секретный_пароль"
+bot_password = "секретный_пароль"  # Замените на свой пароль
 
 # Список разрешённых пользователей
 allowed_users = set()
@@ -64,7 +63,7 @@ def telegram_webhook():
                 name_to_clear = text.replace("/clear ", "").strip()
                 if name_to_clear:
                     response = requests.post(
-                       f"https://muzvideo2-bot.onrender.com/clear_context/(name_to_clear)"
+                       f"https://muzvideo2-bot.onrender.com/clear_context/{quote(name_to_clear)}" # Замените на свой URL
                     )
                     if response.status_code == 200:
                         send_message(chat_id, f"Контекст для пользователя {name_to_clear} успешно удалён.")
@@ -73,7 +72,6 @@ def telegram_webhook():
                 else:
                     send_message(chat_id, "Формат команды: /clear Имя_Фамилия")
                 return "OK"
-
             if text.startswith("/pause "):
                 name_to_pause = text.replace("/pause ", "").strip()
                 if name_to_pause:
@@ -86,11 +84,15 @@ def telegram_webhook():
 
             elif text.startswith("/play "):
                 name_to_play = text.replace("/play ", "").strip()
-                if name_to_play in paused_names:
-                    paused_names.remove(name_to_play)
-                    send_message(chat_id, f"Возобновил для: {name_to_play}")
+                if name_to_play:
+                    if name_to_play in paused_names:
+                        paused_names.remove(name_to_play)
+                        send_message(chat_id, f"Возобновил для: {name_to_play}")
+                        print(f"Удален из паузы: {name_to_play}")
+                    else:
+                        send_message(chat_id, f"Пользователь '{name_to_play}' не был на паузе.")
                 else:
-                    send_message(chat_id, f"Пользователь '{name_to_play}' не был на паузе.")
+                    send_message(chat_id, "Формат команды: /play Имя_Фамилия")
                 return "OK"
 
             send_message(chat_id, f"Вы отправили: {text}")
@@ -98,6 +100,8 @@ def telegram_webhook():
             send_message(chat_id, "У вас нет доступа. Используйте /start для ввода пароля.")
 
     return "OK"
+
+import logging
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
