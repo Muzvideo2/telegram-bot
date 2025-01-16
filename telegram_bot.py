@@ -2,6 +2,8 @@ import os
 import requests
 from flask import Flask, request, jsonify  # Исправлено: добавлен импорт jsonify
 from datetime import datetime, timedelta
+import logging
+from urllib.parse import quote
 
 # Telegram API Token
 telegram_token = "8101646300:AAE3hEx3q8953PHlfKiofvo4aH8zBBEUdrQ"
@@ -71,6 +73,7 @@ def telegram_webhook():
                 else:
                     send_message(chat_id, "Формат команды: /clear Имя_Фамилия")
                 return "OK"
+
             if text.startswith("/pause "):
                 name_to_pause = text.replace("/pause ", "").strip()
                 if name_to_pause:
@@ -95,8 +98,6 @@ def telegram_webhook():
             send_message(chat_id, "У вас нет доступа. Используйте /start для ввода пароля.")
 
     return "OK"
-
-import logging
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG)
