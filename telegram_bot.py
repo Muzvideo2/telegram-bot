@@ -58,6 +58,19 @@ def telegram_webhook():
 
         # Если пользователь авторизован
         if chat_id in allowed_users:
+            if text.startswith("/clear "):
+                name_to_clear = text.replace("/clear ", "").strip()
+                if name_to_clear:
+                    response = requests.post(
+                       f"https://muzvideo2-bot.onrender.com/clear_context/{quote(name_to_clear)}"
+                    )
+                    if response.status_code == 200:
+                        send_message(chat_id, f"Контекст для пользователя {name_to_clear} успешно удалён.")
+                    else:
+                        send_message(chat_id, f"Ошибка при удалении контекста для пользователя {name_to_clear}.")
+                else:
+                    send_message(chat_id, "Формат команды: /clear Имя_Фамилия")
+                return "OK"
             if text.startswith("/pause "):
                 name_to_pause = text.replace("/pause ", "").strip()
                 if name_to_pause:
