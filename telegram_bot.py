@@ -96,12 +96,17 @@ def telegram_webhook():
 
     return "OK"
 
+import logging
+
+# Настройка логирования
+logging.basicConfig(level=logging.DEBUG)
+
 @app.route("/is_paused/<name>", methods=["GET"])
 def check_pause(name):
     """
     Проверяет, находится ли пользователь на паузе.
     """
-    print(f"Проверка паузы для пользователя: {name}")
+    logging.debug(f"Проверка паузы для пользователя через логгер: {name}")
     if name in paused_names:
         return jsonify({"paused": True})
     return jsonify({"paused": False})
