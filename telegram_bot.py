@@ -140,14 +140,16 @@ logging.debug("Проверка: уровень логирования DEBUG р�
 # Запуск Flask-приложения
 if __name__ == "__main__":
     # Укажите вебхук
-    render_url = os.getenv("RENDER_EXTERNAL_URL")  # URL вашего Render
-    if render_url:
-        webhook_url = f"{render_url}/{telegram_token}"
-        requests.get(f"{base_url}/setWebhook?url={webhook_url}")
-        print(f"Webhook установлен: {webhook_url}")
+    webhook_url = "https://telegram-bot-k2hl.onrender.com"  # Фиксированный URL для вашего Render
+    response = requests.get(f"{base_url}/setWebhook?url={webhook_url}")
+    
+    # Проверка успешной установки вебхука
+    if response.status_code == 200:
+        print(f"Webhook успешно установлен: {webhook_url}")
     else:
-        print("Ошибка: URL сервиса не найден.")
+        print(f"Ошибка установки вебхука: {response.status_code}, {response.text}")
 
     # Запуск Flask
     port = int(os.getenv("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    debug_mode = os.getenv("FLASK_DEBUG", "true").lower() == "true"  # Проверяем, включен ли debug-режим
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)
