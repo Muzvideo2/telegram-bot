@@ -64,7 +64,7 @@ def telegram_webhook():
                 name_to_clear = text.replace("/clear ", "").strip()
                 if name_to_clear:
                     response = requests.post(
-                       f"https://muzvideo2-bot.onrender.com/clear_context/{quote(name_to_clear)}"
+                       f"https://muzvideo2-bot.onrender.com/clear_context/(name_to_clear)"
                     )
                     if response.status_code == 200:
                         send_message(chat_id, f"Контекст для пользователя {name_to_clear} успешно удалён.")
