@@ -101,8 +101,9 @@ def check_pause(name):
     """
     Проверяет, находится ли пользователь на паузе.
     """
+    print(f"Проверка паузы для пользователя: {name}")
     if name in paused_names:
-        return jsonify({"paused": True})  # Исправлено: добавлен импорт jsonify
+        return jsonify({"paused": True})
     return jsonify({"paused": False})
 
 def send_telegram_notification(question, user_vk_link):
