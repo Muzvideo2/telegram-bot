@@ -1,6 +1,2 @@
 Flask
 requests
-psycopg2-binary
-openpyxl
-aiohttp
-python-telegram-bot==20.0
