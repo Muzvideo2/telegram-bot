@@ -3,6 +3,7 @@ import requests
 from flask import Flask, request
 from datetime import datetime, timedelta
 import logging
+import urllib.parse
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,6 +25,31 @@ user_states = {}
 
 # Flask-приложение
 app = Flask(__name__)
+
+def send_max_message(text):
+    """
+    Отправляет сообщение в мессенджер MAX.
+    """
+    user_id = os.getenv("MAX_USER_ID", "197275944")
+    token = os.getenv("MAX_BOT_TOKEN", "f9LHodD0cOJhdHOgQGcfAwtpO5TjsO9pi6AegkNtLqmSDUq9gdn4SM9JwZ_UIlLuEaqqEi81DOS2OXuW38lt")
+    
+    url = f"https://platform-api.max.ru/messages?user_id={urllib.parse.quote(str(user_id))}"
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': token
+    }
+    
+    formatted_text = str(text).replace('\n', '<br>')
+    payload = {
+        'text': formatted_text,
+        'format': 'html'
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Ошибка при отправке сообщения в MAX: {e}")
 
 def send_message(chat_id, text):
     """
@@ -48,6 +74,17 @@ def telegram_webhook():
             chat_id = data["message"]["chat"]["id"]
             text = data["message"].get("text", "")
             logging.info(f"Получено сообщение от пользователя {chat_id}: {text}")
+            
+            # Дублируем полученное сообщение в MAX
+            from_user = data["message"].get("from", {})
+            user_name = from_user.get("first_name", "")
+            if "last_name" in from_user:
+                user_name += f" {from_user['last_name']}"
+            if "username" in from_user:
+                user_name += f" (@{from_user['username']})"
+            
+            max_msg = f"<b>📥 Входящее сообщение в Telegram</b><br><b>От:</b> {user_name.strip()} (ID: {chat_id})<br><b>Текст:</b> {text}"
+            send_max_message(max_msg)
             
             # Если пользователь отправляет /start
             if text == "/start":
@@ -96,6 +133,13 @@ def send_telegram_notification(question, user_vk_link):
         # Отправляем сообщение администратору
         for admin_id in allowed_users:  # Уведомление только авторизованным
             send_message(admin_id, message)
+            
+        # Дублируем уведомление в MAX
+        max_notify = f"""<b>🔔 Новое уведомление (ранее Telegram)</b><br>
+🕒 <b>Дата и время (Омск):</b> {formatted_time}<br>
+👤 <b>Стартовый вопрос:</b> {question}<br>
+🔗 <b>Ссылка на диалог:</b> {user_vk_link}"""
+        send_max_message(max_notify)
     except Exception as e:
         logging.error(f"Ошибка при отправке уведомления: {e}")
 
